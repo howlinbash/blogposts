@@ -143,5 +143,3 @@ I have two final functionalities to add to my build script
 - a function to push a completed image from staging to live.
 
 ## In Closing
-
-edit
