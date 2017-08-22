@@ -1,37 +1,15 @@
 ---
 layout: post
-title: How I Built HowlinBash.com
+title: How I Built howlinbash.com
 ---
 
-TL/DR: I built HowlinBash.com the *long* way.
+TL/DR: I built howlinbash.com the *long* way.
 
-As I saw it there were 5 main approaches open to me.
+I needed a blog.
 
-1. Medium
-2. Squarespace
-3. WordPress
-4. GitHub Pages
-5. Other
+I didn't spend too much time shopping before I settled with a self-hosted implementation of Jekyll. I'm a bit of a command line junkie. The draw of writing, formating and publishing each blogpost without having to touch a mouse was too enticing to pass.
 
-I chose other.
-
-My four main requirements were:
-
-- workflow speed (of development and blogging)
-- maintainability
-- extendability
-- an accurate showcase of my current abilities
-
-I ruled out Medium and Squarespace as they do not accurately reflect my current abilities as a developer. GitHub Pages is not extendable enough... so why not WordPress?
-
-In terms of my four requirements, WordPress scored low enough on average to be disqualified by this criteria alone but I suppose the main reason I didn't want to build another WordPress blog is because I have been down there. I know that road. I know exactly where it ends. And I know that's not where I want to be.
-
-
-## The Site
-
-Being a command line junkie I settled on the static markdown blog format, that way I could write, format, and publish each blogpost without having to touch a mouse. Splendid. I went with Jekyll. It's the most popular of the static site generators so in theory there'll be more support.
-
-The next step: plan out a modular development structure for the website.
+The next step was to plan out a modular development structure for the website.
 
 I decided to split the code into three repositories: blogposts, website and website theme. By isolating the blogposts, I could compensate my lack of a GUI by drafting posts from github.com if I needed to. By seperating the theme from the main site, I could switch to a new theme without having to refactor the entire codebase and I could potentially use either repo for future websites. I chose Hyde by @mdo as a base theme. Forked it, updated it and called it Heidi.
 
@@ -189,9 +167,7 @@ While the above images live on dockerhub and are pushed and pulled from my local
 - reloads the server.
 - switches the `previous` image with the `current` image on dockerhub
 
-![alt text](./howlin-wolf-square-tiny.jpg "Howlin Bash Text")
-![alt text]({{ site.url }}/assets/img/deploy.jpg "Howlin Bash Text")
-![alt text]({{ site.baseurl }}/assets/img/deploy.jpg "Howlin Bash Text")
+![deploy diagram]({{ site.url }}/assets/img/deploy.jpg)
 
 ### Post
 > Post blogpost to website.
