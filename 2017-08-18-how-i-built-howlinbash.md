@@ -68,13 +68,12 @@ To build a seperate theme whilst building a website turned out to be my most dis
 
 There were no two ways about it. I needed a bash script.
 
----
-
 To clarify:
 
 My goal was to build a website, it was not to build a theme. The theme would be a by-product of the website. Ideally as I built the website, the theme would magically build itself behind the scenes, without me having to think about it. This meant that I would need to develop the website from both the theme repo and the website repo almost simultaneously.
 
-So, I built this script to meet that goal.
+
+## The Build Script
 
 The script is run from `main.sh` (which can be aliased to whatever you like).
 
@@ -106,16 +105,16 @@ However, if I serve my site, the script
 - starts a docker container that watches and builds the site to `/web`
 - starts a second container that watches and serves the same directory to localhost.
 
-To preview blogposts I decided to re-appropriate gits functionality to the needs of the script
-- the blogposts repo has 2 remote branches: master and drafts.
-- each blogpost has it's own local branch that is merged with drafts each time i preview a post.
+To preview blogposts I decided to re-appropriate gits functionality to the needs of the script.
+- the blogposts repo has 2 remote branches: `master` and `drafts`.
+- each blogpost has it's own local branch that is merged with `drafts` each time i preview a post.
 
-The preview post part of the script
+The script
 - starts the above site server
 - commits the post to the local blogpost branch
-- merges the the blogpost branch to the drafts branch which is then pushed to github
+- merges the the blogpost branch to `drafts` which is then pushed to github
 - switches to the site repo (which contains the blogposts repo as a submodule)
-- switches the blogposts submodule branch from master to drafts
+- switches the blogposts submodule branch from `master` to `drafts`
 - pulls the latest draft blogpost
 - the site server, started above, spots the change and rebuilds the site for preview.
 
@@ -130,11 +129,11 @@ To avoid commiting broken code I have to be able to test my theme works when loa
 
 The script 
 - loads any changes from the theme config file to the site config file
-- starts a docker container with a local geminabox test gem server
-- switches all the config variables from the theme name to the test theme name
-- makes a test gem and pushes it to the test server
+- starts a docker container with a local geminabox gem server
+- switches the theme variables to test theme variables in the config file
+- makes a test gem and pushes it to the geminabox server
 - serves the test site in a docker container to localhost
-- reverts all config variables back to the original theme name
+- reverts all config variables back to the original theme variables
 
 ### Bump
 > Update theme version number, commit changes and post gem to rubygems.org.
@@ -144,13 +143,13 @@ When I know that the theme works as a gem and I'm happy with my changes, I bump,
 The script
 - makes a gem
 - bumps the version number in the relevant config files
-- pushes the gem to rubygems
+- pushes the gem to [rubygems](https://rubygems.org)
 - commits the changes to GitHub
-- interactively commits the theme config file incase there are any changes to commit
+- interactively commits the config file to commit individual sections if needed
 - tags the commit with the version number
 
 ### Deploy
-> Deploy changes.
+> Deploy code to howlinbash.com
 
 The deploy option itself has three options
 - `stage` pushes my latest code to staging @ dev.howlinbash.com
@@ -188,21 +187,25 @@ While the above images live on dockerhub and are pushed and pulled from my local
 - SSHes into the server
 - switches the `staging` image with the `live` image on the server
 - reloads the server.
-- switches the previous image with the current image on dockerhub
+- switches the `previous` image with the `current` image on dockerhub
+
+![alt text](./howlin-wolf-square-tiny.jpg "Howlin Bash Text")
+![alt text]({{ site.url }}/assets/img/deploy.jpg "Howlin Bash Text")
+![alt text]({{ site.baseurl }}/assets/img/deploy.jpg "Howlin Bash Text")
 
 ### Post
 > Post blogpost to website.
 
-Resolving the git appropriation from `serve post`, the script pushes the completed post to master deletes the draft from drafts and then merges master into drafts to keep drafts housing all complete posts and drafts and master housing just the complete posts.
+Resolving the git appropriation from `serve post`, the script pushes the completed post to `master` deletes the draft from `drafts` and then merges `master` into `drafts` to keep `drafts` housing all complete posts and drafts and `master` housing just the complete posts.
 
 The script
 - grabs the post filename from the user
-- checksout blogposts master
+- checksout blogposts `master`
 - checksout the blogpost file from the blogpost branch
-- commits to master and pushes master to github
-- deletes the file from drafts and then deletes the blogpost branch
-- builds a `next` site image with the latest post from blogpost master
-- switches `current` to `previous on dockerhub
+- commits to `master` and pushes `master` to github
+- deletes the file from `drafts` and then deletes the blogpost branch
+- builds a `next` site image with the latest post from blogpost `master`
+- switches `current` to `previous` on dockerhub
 - pushes `next` image to dockerhub as `current`.
 - SSHes into server
 - pulls `previous` as `staging` and `current` as `live`.
