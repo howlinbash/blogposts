@@ -3,7 +3,7 @@ layout: post
 title: How I Built HowlinBash.com
 ---
 
-Answer: I built HowlinBash.com the *long* way.
+TL/DR: I built HowlinBash.com the *long* way.
 
 As I saw it there were 5 main approaches open to me.
 
@@ -74,9 +74,13 @@ To clarify:
 
 My goal was to build a website, it was not to build a theme. The theme would be a by-product of the website. Ideally as I built the website, the theme would magically build itself behind the scenes, without me having to think about it. This meant that I would need to develop the website from both the theme repo and the website repo almost simultaneously.
 
-So, I built this script.
+So, I built this script to meet that goal.
 
-Below is a description of what each argument does and why I built it.
+The script is run from `main.sh` (which can be aliased to whatever you like).
+
+It takes a number of options initialised by a simple case statement and two of those options also take an option, again determined by a case statement.
+
+Below is a description of what each option does and why I built it.
 
 ### Load
 > Move posts, pages & config from site repo to theme repo for development.
@@ -87,7 +91,13 @@ Loading all my website specific files to the theme directory means that although
 - I use `git update-index --assume-unchanged` to ignore the howlinbash specific files.
 
 ### Serve
-> Serve and watch theme or site.
+> Serve and watch theme or site or preview blogpost.
+
+The serve option itself has four options
+- `theme` for theme focused development
+- `site` for site focused development
+- `post` to preview a draft blogpost
+- `stop` to stop a running site server
 
 If I serve my theme, the script moves to the theme repo and runs `bundle exec guard` to serve a live-reloading website to localhost.
 
@@ -95,6 +105,23 @@ However, if I serve my site, the script
 - moves to the site repo
 - starts a docker container that watches and builds the site to `/web`
 - starts a second container that watches and serves the same directory to localhost.
+
+To preview blogposts I decided to re-appropriate gits functionality to the needs of the script
+- the blogposts repo has 2 remote branches: master and drafts.
+- each blogpost has it's own local branch that is merged with drafts each time i preview a post.
+
+The preview post part of the script
+- starts the above site server
+- commits the post to the local blogpost branch
+- merges the the blogpost branch to the drafts branch which is then pushed to github
+- switches to the site repo (which contains the blogposts repo as a submodule)
+- switches the blogposts submodule branch from master to drafts
+- pulls the latest draft blogpost
+- the site server, started above, spots the change and rebuilds the site for preview.
+
+This process is resolved when a blogpost is posted to the website with the `post` option, detailed below.
+
+The `stop` option simply stops and removes the containers that are serving the site locally.
 
 ### Test
 > Test theme by pushing, pulling and building from local gem server.
@@ -125,21 +152,62 @@ The script
 ### Deploy
 > Deploy changes.
 
-Once I'm content with my code, I push it to staging.
+The deploy option itself has three options
+- `stage` pushes my latest code to staging @ dev.howlinbash.com
+- `live` switches the live code ( @ howlinbash.com ) with the staged code
+- `revert` reverses the switch just in case some bad code slips through.
 
-The script
-- pulls the latest posts from the blogpost repo
-- builds the website docker image
+The deploy system relies mainly on docker tags to move and switch docker images.
+
+The tags are:
+- `next` this is the latest image. The code I just wrote.
+- `current` this is the code you can currently see at howlinbash.com
+- `previous` the last website that was live.
+
+While the above images live on dockerhub and are pushed and pulled from my local machine to my server, the next two images only live on the server and determine what is viewable at dev.howlinbash.com and howlinbash.com
+- `staging` the image viewable at dev.howlinbash.com
+- `live` the image viewable at howlinbash.com
+
+`stage`
+- pulls the latest blogposts
+- builds an image and tags it `next`
 - pushes the image to dockerhub
 - SSHes into my server
-- pulls the latest image from dockerhub
-- replaces the staged container with the image
-- reloads the server
+- pulls the `next` image and retags it `staging`
+- reboots the server to load image to dev.howlinbash.com
 
-### To Be Completed...
+`live`
+- switches the `current` image to the `previous` image on dockerhub
+- pushes the recently built `next` image to dockerhub as `current`
+- SSHes into the server
+- retags the `staging` image as `live`
+- pulls the `previous` image from dockerhub as `staging`
+- reloads the server to load images to dev.howlinbash.com and howlinbash.com
 
-I have two final functionalities to add to my build script
-- add a third option to `serve` to preview live changes to blogposts
-- a function to push a completed image from staging to live.
+`revert`
+- SSHes into the server
+- switches the `staging` image with the `live` image on the server
+- reloads the server.
+- switches the previous image with the current image on dockerhub
+
+### Post
+> Post blogpost to website.
+
+Resolving the git appropriation from `serve post`, the script pushes the completed post to master deletes the draft from drafts and then merges master into drafts to keep drafts housing all complete posts and drafts and master housing just the complete posts.
+
+The script
+- grabs the post filename from the user
+- checksout blogposts master
+- checksout the blogpost file from the blogpost branch
+- commits to master and pushes master to github
+- deletes the file from drafts and then deletes the blogpost branch
+- builds a `next` site image with the latest post from blogpost master
+- switches `current` to `previous on dockerhub
+- pushes `next` image to dockerhub as `current`.
+- SSHes into server
+- pulls `previous` as `staging` and `current` as `live`.
+- reloads server.
+
 
 ## In Closing
+
