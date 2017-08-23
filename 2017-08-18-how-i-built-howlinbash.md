@@ -27,22 +27,22 @@ I had a number of requirements from my server:
 3. A reverse-proxy to easy facilitate future capabilities
 4. A docker-centric workflow ( my latest infatuation )
 
-I began developing the most excessive, scalable, docker server cluster I could imagine; With load balancing, continuous deployment, failover, all spread across as many virtual servers as i desired. By the time I was knee deep in iptables documentation, I realised I'd gone too far. Vowing to return one day to my mega cluster, I pushed on, building a simple NGiNX reverse-proxy server before finding a superb [pre-built solution](https://github.com/howlinbash/build-server) on GitHub.
+I began developing the most excessive, scalable, docker server cluster I could imagine; With load balancing, continuous deployment, failover, all spread across as many virtual servers as I desired. By the time I was knee deep in iptables documentation, I realised I'd gone too far. Vowing to return one day to my mega cluster, I pushed on, building a simple NGiNX reverse-proxy server before finding a superb [pre-built solution](https://github.com/howlinbash/build-server) on GitHub.
 
 The server now consists of five parts
 
 - The main NGiNX reverse-proxy container
 - A container that generates and updates the reverse-proxy configuration
 - A container that handles the acquisition and renewal of the TLS encryption certificates
-- A container with my staging website available at https://dev.howlinbash.com
-- And finally a container with my live website: https://howlinbash.com
+- A container with the staging website available at https://dev.howlinbash.com
+- And finally a container with the live website: https://howlinbash.com
 
 
 ## The Development Environment
 
 To build a seperate theme whilst building a website turned out to be my most disruptive decision. My most puzzling problem to solve.
 - Which repo should I commit which code changes to?
-- How can I make sure the changes I make to my theme will load on my site?
+- How can I make sure the changes I make to the theme will load on the site?
 
 To clarify:
 
@@ -64,8 +64,8 @@ Below is a description of what each option does and how it works.
 
 Although the code I commit will be pushed to my theme repo rather than my site repo, by initially loading the files and configuration specific to my website, my theme server will appear as if i'm working on my website code directly.
 
-- I use `sed` to comment out the howlinbash specific settings in my config file
-- I use `git update-index --assume-unchanged` to ignore the howlinbash specific files as I develop
+- `sed` comments out the howlinbash specific settings in the config file
+- `git update-index --assume-unchanged` ignores the howlinbash specific files whilst developing
 
 ### Serve
 > Serve and watch theme or site or preview blogpost.
@@ -85,7 +85,7 @@ However, if I serve my site, the script
 
 To preview blogposts I decided to re-appropriate gits functionality to the needs of the script.
 - the blogposts repo has 2 remote branches: `master` and `drafts`
-- each blogpost has it's own local branch that is merged with `drafts` each time i preview a post
+- each blogpost has it's own local branch that is merged with `drafts` each time a post is previewed
 
 The script
 - starts the above site server
@@ -130,18 +130,18 @@ The script
 > Deploy code to howlinbash.com
 
 The deploy option itself has three options
-- `stage` pushes my latest code to staging @ dev.howlinbash.com
+- `stage` pushes the latest code to staging @ dev.howlinbash.com
 - `live` switches the live code ( @ howlinbash.com ) with the staged code
 - `revert` reverses the switch just in case some bad code slips through
 
 The deploy system relies mainly on docker tags to move and switch docker images.
 
 The tags are:
-- `next` this is the latest image. The code I just wrote
+- `next` this is the latest image. The latest code written
 - `current` this is the code you can currently see at howlinbash.com
 - `previous` the last website that was live
 
-While the above images live on [docker hub](https://hub.docker.com/) and are pushed and pulled from my local machine to my server, the next two images only live on the server and determine what is viewable at dev.howlinbash.com and howlinbash.com
+While the above images live on [docker hub](https://hub.docker.com/r/howlinbash/howlinbash) and are pushed and pulled from my local machine to my server, the next two images only live on the server and determine what is viewable at dev.howlinbash.com and howlinbash.com
 - `staging` the image viewable at dev.howlinbash.com
 - `live` the image viewable at howlinbash.com
 
@@ -149,7 +149,7 @@ While the above images live on [docker hub](https://hub.docker.com/) and are pus
 - pulls the latest blogposts
 - builds an image and tags it `next`
 - pushes the image to docker hub
-- SSHes into my server
+- SSHes into the server
 - pulls the `next` image and retags it `staging`
 - reboots the server to load image to dev.howlinbash.com
 
