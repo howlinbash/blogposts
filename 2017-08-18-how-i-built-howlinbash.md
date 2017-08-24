@@ -179,7 +179,7 @@ The script
 - checksout blogposts `master`
 - checksout the blogpost file from the blogpost branch
 - commits to `master` and pushes `master` to GitHub
-- merges `master` to `drafts`
+- merges `master` to `drafts` and pushes `drafts` to GitHub
 - builds a `next` site image with the latest post from blogpost `master`
 - switches `current` to `previous` on docker hub
 - pushes `next` image to docker hub as `current`
